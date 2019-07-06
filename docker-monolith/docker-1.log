@@ -1,0 +1,17 @@
+REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE
+egrn/ubuntu-tmp-file   latest              073ec4ada4b9        4 days ago          119MB
+ubuntu                 16.04               13c9f1285025        2 weeks ago         119MB
+hello-world            latest              fce289e99eb9        6 months ago        1.84kB
+
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS               NAMES
+d0b3d9794202        ubuntu:16.04        "/bin/bash"         5 days ago          Exited (0) 4 days ago                       zealous_mirzakhani
+829d050de1d9        hello-world         "/hello"            5 days ago          Exited (0) 5 days ago                       hopeful_lovelace
+
+
+# docker inspect 13
+# docker inspect d0
+
+В конфигурации img содержится объект RootFS, содержащий перечень слоев. В контейнере нет перечня слоев, из чего можно предположить,
+что он сам - это один слой. Также в контейнере есть флаг "ReadonlyRootfs": false , судя по которому в этот слой разрешена запись.
+В целом, image похоже на основу, а контейнер на ее конфигурацию.
+
