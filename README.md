@@ -3,6 +3,35 @@
 ___
 ___
 
+## HW15: docker-2
+
+#### Задачи
+Сравнить вывод с/без pid host
+
+#### Решение
+Без опции выводит изолированное namespase процессов (контейнер). С опцией выводит namespace ВМ GCE, т.е. хостовое пространство.
+__
+
+#### Задачи *1
+Прототип /docker-monolith/infra/
+• Поднятие инстансов с помощью Terraform, их количество задается переменной;
+• Несколько плейбуков Ansible с использованием динамического инвентори для установки докера и запуска там образа приложения;
+• Шаблон пакера, который делает образ с уже установленным Docker
+
+#### Решение *1
+Готово
+```
+cd ./docker-monolith/infra/terraform
+terraform apply -auto-approve
+cd ../ansible
+ansible-playbook site.yml -i make-inventory.sh
+cd ..
+packer build -var-file=packer/variables.json packer/db.json
+```
+
+___
+___
+
 ## HW14: docker-1
 
 #### Задачи

@@ -1,0 +1,45 @@
+---
+# tasks file for app
+
+- name: Install python for Ansible
+  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+  changed_when: False
+
+- name: Add Docker GPG key
+  apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+
+- name: Install basic list of packages
+  apt:
+    name: ['apt-transport-https','ca-certificates','curl','gnupg2','software-properties-common']
+    state: present
+    update_cache: yes
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/{{ image }} {{ release }} stable
+
+- name: Install Docker packages
+  apt:
+    name: ['docker-ce','docker-ce-cli','containerd.io']
+    state: present
+
+#  - name: Install Docker-compose
+#    shell: curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+- name: Install pip
+  apt:
+    name: python-pip
+
+- name: Install docker-py
+  pip:
+    name: docker-py
+
+- name: Start reddit container
+  docker_container:
+    name: reddit-gce
+    image: egrn/otus-reddit:1.0
+    state: started
+    ports:
+    - "9292:9292"
+
+

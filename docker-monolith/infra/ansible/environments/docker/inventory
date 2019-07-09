@@ -1,0 +1,4 @@
+
+[docker]
+docker-app-1 ansible_host=35.228.172.126 ansible_user=appuser
+docker-app-2 ansible_host=35.228.205.200 ansible_user=appuser
