@@ -1,0 +1,6 @@
+- name: Configure Docker host
+  hosts: app
+  become: true
+
+  roles:
+    - role: app
