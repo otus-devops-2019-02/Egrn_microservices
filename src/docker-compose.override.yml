@@ -1,0 +1,67 @@
+version: '3.3'
+services:
+  post_db:
+    image: mvertes/alpine-mongo
+    volumes:
+      - post_db:/data/db
+    networks:
+      back_net:
+        aliases:
+          - r_db
+  ui:
+    #build: ./ui
+    env_file: .env
+    image: ${R_USER}/ui:${R_VER}
+    volumes:
+      - uicode:/app
+    ports:
+      - ${R_EXT_PORT}:9292/tcp #host:cntr
+    networks:
+      front_net:
+        aliases:
+          - r_ui
+    command: "puma --debug -w 2"      
+  post:
+    env_file: .env
+    image: ${R_USER}/post:${R_VER}
+    volumes:
+      - postcode:/app
+    networks:
+      front_net:
+        aliases:
+          - r_post
+      back_net:
+        aliases:
+          - r_post
+  comment:
+    env_file: .env
+    image: ${R_USER}/comment:${R_VER}
+    volumes:
+      - commentcode:/app
+    networks:
+      front_net:
+        aliases:
+          - r_comment
+      back_net:
+        aliases:
+          - r_comment
+volumes:
+  post_db:
+  uicode:
+    driver_opts:
+      type: none
+      device: /home/docker-user/app/ui
+      o: bind
+  postcode:
+    driver_opts:
+      type: none
+      device: /home/docker-user/app/post-py
+      o: bind
+  commentcode:
+    driver_opts:
+      type: none
+      device: /home/docker-user/app/comment
+      o: bind
+networks:
+  front_net:
+  back_net:

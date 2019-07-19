@@ -2,6 +2,29 @@
 # Egrn_microservices
 ___
 ___
+## HW17: docker-4
+#### Задачи
+1) Изменить docker-compose под кейс с множеством сетей, сетевых алиасов (стр 18).
+2) Параметризуйте с помощью переменных окружений
+3) Использовать файл .env (без команд source и export)
+#### Решение
+Done
+#### Задача
+Узнайте как образуется базовое имя проекта
+#### Решение
+docker-compose -p ownname up -d
+
+#### Задача *
+1) Изменять код каждого из приложений, не выполняя сборку образа
+2) Запускать puma для руби приложений в дебаг режиме с двумя воркерами (флаги --debug и -w 2)
+#### Решение *
+```
+rsync -avh -e "ssh -i /root/.docker/machine/machines/docker-host/id_rsa" ./ docker-user@35.228.127.163:/home/docker-user/app/
+docker-compose -f docker-compose.override.yml -p override up -d
+```
+
+___
+___
 
 ## HW16: docker-3
 #### Задачи
