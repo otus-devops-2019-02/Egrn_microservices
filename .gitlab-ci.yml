@@ -35,6 +35,8 @@ deploy_dev_job:
 staging:
   stage: stage
   when: manual
+  only:
+    - /^[0-9]+\.[0-9]+\.[0-9]+/
   script:
     - echo 'Deploy'
   environment:
@@ -44,6 +46,8 @@ staging:
 production:
   stage: prod
   when: manual
+  only:
+    - /^[0-9]+\.[0-9]+\.[0-9]+/
   script:
     - echo 'Deploy'
   environment:
