@@ -3,7 +3,7 @@ stages:
   - test
   - review
   - stage
-  - prodaction
+  - prod
 
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
@@ -42,7 +42,7 @@ staging:
     url: https://beta.example.com
 
 production:
-  stage: production
+  stage: prod
   when: manual
   script:
     - echo 'Deploy'
