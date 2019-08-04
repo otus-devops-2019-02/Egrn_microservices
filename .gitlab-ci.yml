@@ -7,22 +7,26 @@ stages:
 
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+
+services:
+  - docker:dind
 
 before_script:
-  #- docker info
-  #- cd reddit
-  #- bundle install
+  - docker info
 
 build_job:
   stage: build
+  services:
+  - docker:dind
   script:
   - echo 'Building'
-  - sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
   - cd reddit-app-docker
   - docker build -t reddit-app .
   - docker push reddit-app
   tags:
-  - shell
+  - docker
 
 test_unit_job:
   stage: test
