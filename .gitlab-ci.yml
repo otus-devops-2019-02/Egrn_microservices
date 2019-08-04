@@ -16,6 +16,8 @@ build_job:
   stage: build
   script:
     - echo 'Building'
+  tags:
+   - shell
 
 test_unit_job:
   stage: test
@@ -23,6 +25,8 @@ test_unit_job:
     - mongo:latest
   script:
     - ruby simpletest.rb
+  tags:
+   - docker
 
 deploy_dev_job:
   stage: review
@@ -31,6 +35,21 @@ deploy_dev_job:
   environment:
     name: dev
     url: http://dev.example.com
+  tags:
+   - docker
+
+branch review:
+  stage: review
+  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.example.com
+  only:
+    - branches
+  except:
+    - master
+  tags:
+   - docker
 
 staging:
   stage: stage
@@ -42,6 +61,8 @@ staging:
   environment:
     name: stage
     url: https://beta.example.com
+  tags:
+   - docker
 
 production:
   stage: prod
@@ -53,3 +74,5 @@ production:
   environment:
     name: production
     url: https://example.com
+  tags:
+   - docker
