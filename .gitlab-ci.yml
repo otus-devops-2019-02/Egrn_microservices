@@ -20,7 +20,7 @@ build_job:
     - cd reddit-app-docker
     - docker build -t reddit-app .
   tags:
-   - shell
+   - docker
 
 test_unit_job:
   stage: test
