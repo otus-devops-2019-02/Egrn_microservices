@@ -15,16 +15,14 @@ before_script:
 
 build_job:
   stage: build
-  image: docker:git
-  services:
-  - docker:dind
   script:
   - echo 'Building'
+  - apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
   - cd reddit-app-docker
   - docker build -t reddit-app .
   - docker push reddit-app
   tags:
-  - docker
+  - shell
 
 test_unit_job:
   stage: test
