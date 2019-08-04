@@ -14,7 +14,7 @@ services:
   - docker:dind
 
 before_script:
-  - docker info
+  - sudo docker info
 
 build_job:
   stage: build
@@ -23,8 +23,8 @@ build_job:
   script:
   - echo 'Building'
   - cd reddit-app-docker
-  - docker build -t reddit-app .
-  - docker push reddit-app
+  - sudo docker build -t reddit-app .
+  - sudo docker push reddit-app
   tags:
   - docker
 
@@ -37,7 +37,7 @@ test_unit_job:
     - bundle install
     - ruby simpletest.rb
   tags:
-  - docker
+  - ruby
 
 deploy_dev_job:
   stage: review
@@ -47,7 +47,7 @@ deploy_dev_job:
     name: dev
     url: http://dev.example.com
   tags:
-  - docker
+  - ruby
 
 branch review:
   stage: review
@@ -60,7 +60,7 @@ branch review:
   except:
     - master
   tags:
-   - docker
+   - ruby
 
 staging:
   stage: stage
@@ -73,7 +73,7 @@ staging:
     name: stage
     url: https://beta.example.com
   tags:
-   - docker
+   - ruby
 
 production:
   stage: prod
@@ -86,4 +86,4 @@ production:
     name: production
     url: https://example.com
   tags:
-   - docker
+   - ruby
