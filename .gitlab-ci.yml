@@ -17,7 +17,7 @@ build_job:
   stage: build
   script:
   - echo 'Building'
-  - apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
+  - sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
   - cd reddit-app-docker
   - docker build -t reddit-app .
   - docker push reddit-app
