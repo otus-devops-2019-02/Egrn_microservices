@@ -17,15 +17,15 @@ build_job:
   stage: build
   image: docker:git
   services:
-    - docker:dind
+  - docker:dind
   build:
     script:
-      - echo 'Building'
-      - cd reddit-app-docker
-      - docker build -t reddit-app .
-      - docker push reddit-app
+    - echo 'Building'
+    - cd reddit-app-docker
+    - docker build -t reddit-app .
+    - docker push reddit-app
   tags:
-   - docker
+  - docker
 
 test_unit_job:
   stage: test
@@ -36,7 +36,7 @@ test_unit_job:
     - bundle install
     - ruby simpletest.rb
   tags:
-   - docker
+  - docker
 
 deploy_dev_job:
   stage: review
@@ -46,7 +46,7 @@ deploy_dev_job:
     name: dev
     url: http://dev.example.com
   tags:
-   - docker
+  - docker
 
 branch review:
   stage: review
