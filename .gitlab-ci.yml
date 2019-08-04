@@ -17,6 +17,7 @@ build_job:
   stage: build
   script:
     - echo 'Building'
+    - cd reddit-app-docker
     - docker build -t reddit-app .
   tags:
    - shell

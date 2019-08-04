@@ -7,7 +7,8 @@ RUN gem install bundler
 COPY mongod.conf /etc/mongod.conf
 COPY db_config /reddit/db_config
 COPY start.sh /start.sh
+COPY ../reddit /reddit
 
-RUN cd ../reddit && bundle install
-RUN cd ../reddit-app-docker && chmod 0777 ../start.sh
+RUN cd /reddit && bundle install
+RUN cd .. && chmod 0777 start.sh
 CMD ["/start.sh"]
