@@ -12,18 +12,18 @@ before_script:
   #- docker info
   #- cd reddit
   #- bundle install
+  image: docker:git
 
 build_job:
   stage: build
   image: docker:git
   services:
   - docker:dind
-  build:
-    script:
-    - echo 'Building'
-    - cd reddit-app-docker
-    - docker build -t reddit-app .
-    - docker push reddit-app
+  script:
+  - echo 'Building'
+  - cd reddit-app-docker
+  - docker build -t reddit-app .
+  - docker push reddit-app
   tags:
   - docker
 
