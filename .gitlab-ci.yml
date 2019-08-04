@@ -14,17 +14,16 @@ services:
   - docker:dind
 
 before_script:
-  - sudo docker info
+  - docker info
 
 build_job:
   stage: build
-  services:
-  - docker:dind
+  image: docker:latest
   script:
   - echo 'Building'
   - cd reddit-app-docker
-  - sudo docker build -t reddit-app .
-  - sudo docker push reddit-app
+  - docker build -t reddit-app .
+  - docker push reddit-app
   tags:
   - docker
 
