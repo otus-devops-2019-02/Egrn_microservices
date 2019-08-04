@@ -23,8 +23,8 @@ build_job:
   script:
   - echo 'Building'
   - cd reddit
-  - docker build -t reddit-app-did .
-  - docker push egrn/reddit-app-did
+  - docker build -t $CI_REGISTRY_USER/reddit-app-did .
+  - docker push $CI_REGISTRY_USER/reddit-app-did
   tags:
   - docker
 
