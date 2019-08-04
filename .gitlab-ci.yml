@@ -39,10 +39,10 @@ test_unit_job:
 
 deploy_dev_job:
   stage: review
-  services:
-    - $CI_REGISTRY_USER/reddit-app-did
+  image: $CI_REGISTRY_USER/reddit-app-did
   script:
     - echo 'Deploy'
+    - start.sh
   environment:
     name: dev
     url: http://35.228.37.96:9292
