@@ -24,7 +24,7 @@ build_job:
   - echo 'Building'
   - cd reddit
   - docker build -t reddit-app-did .
-  - docker push reddit-app-did
+  - docker push egrn/reddit-app-did
   tags:
   - docker
 
