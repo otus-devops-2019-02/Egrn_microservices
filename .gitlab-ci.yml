@@ -12,7 +12,6 @@ before_script:
   #- docker info
   #- cd reddit
   #- bundle install
-  image: docker:git
 
 build_job:
   stage: build
