@@ -1,6 +1,6 @@
 stages:
-  #- build
-  #- test
+  - build
+  - test
   - review
   - stage
   - prod
@@ -18,10 +18,10 @@ build_job:
   script:
     - echo 'Building'
     - docker info
-    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASS" $CI_REGISTRY
-    - cd reddit
-    - docker build -t $CI_REGISTRY_USER/reddit-app-did .
-    - docker push $CI_REGISTRY_USER/reddit-app-did
+    #- docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASS" $CI_REGISTRY
+    #- cd reddit
+    #- docker build -t $CI_REGISTRY_USER/reddit-app-did .
+    #- docker push $CI_REGISTRY_USER/reddit-app-did
   tags:
     - docker
 
