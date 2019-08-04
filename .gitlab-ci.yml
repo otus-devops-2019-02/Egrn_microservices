@@ -15,10 +15,15 @@ before_script:
 
 build_job:
   stage: build
-  script:
-    - echo 'Building'
-    - cd reddit-app-docker
-    - docker build -t reddit-app .
+  image: docker:git
+  services:
+    - docker:dind
+  build:
+    script:
+      - echo 'Building'
+      - cd reddit-app-docker
+      - docker build -t reddit-app .
+      - docker push reddit-app
   tags:
    - docker
 
