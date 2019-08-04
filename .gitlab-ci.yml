@@ -11,10 +11,12 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
+services:
+  - docker:dind
+
+
 build_job:
   stage: build
-  services:
-    - docker:dind
   script:
     - echo 'Building'
     - docker info
@@ -40,8 +42,6 @@ test_unit_job:
 
 deploy_dev_job:
   stage: review
-  services:
-  - docker:dind
   image: $CI_REGISTRY_USER/reddit-app-did
   script:
     - echo 'Deploy'
