@@ -44,6 +44,8 @@ test_unit_job:
 
 deploy_dev_job:
   stage: review
+  services:
+    - docker:dind
   script:
     - echo 'Deploy'
     - docker info
