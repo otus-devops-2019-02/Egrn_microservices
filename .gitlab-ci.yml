@@ -30,6 +30,7 @@ build_job:
 
 test_unit_job:
   stage: test
+  image: ruby:2.6
   services:
     - mongo:latest
   script:
@@ -37,7 +38,7 @@ test_unit_job:
     - bundle install
     - ruby simpletest.rb
   tags:
-  - ruby
+  - docker
 
 deploy_dev_job:
   stage: review
@@ -61,7 +62,7 @@ branch review:
   except:
     - master
   tags:
-   - ruby
+   - docker
 
 staging:
   stage: stage
@@ -74,7 +75,7 @@ staging:
     name: stage
     url: https://beta.example.com
   tags:
-   - ruby
+   - docker
 
 production:
   stage: prod
@@ -87,4 +88,4 @@ production:
     name: production
     url: https://example.com
   tags:
-   - ruby
+   - docker
