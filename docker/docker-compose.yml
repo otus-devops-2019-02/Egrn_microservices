@@ -1,0 +1,99 @@
+version: '3.3'
+services:
+  post_db:
+    image: mvertes/alpine-mongo #mongo:3.2
+    volumes:
+      - post_db:/data/db
+    networks:
+      back_net:
+        aliases:
+          - r_db
+  ui:
+    env_file: .env
+    image: ${R_USER}/ui:${R_VER}
+    ports:
+      - 80:9292/tcp #host:cntr
+    networks:
+      front_net:
+        aliases:
+          - r_ui
+  post:
+    env_file: .env
+    image: ${R_USER}/post:${R_VER}
+    networks:
+      front_net:
+        aliases:
+          - r_post
+      back_net:
+        aliases:
+          - r_post
+  comment:
+    env_file: .env
+    image: ${R_USER}/comment:${R_VER}
+    networks:
+      front_net:
+        aliases:
+          - r_comment
+      back_net:
+        aliases:
+          - r_comment
+  prometheus:
+    image: ${R_USER}/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=1d'
+    networks:
+      front_net:
+        aliases:
+          - r_prometheus
+      back_net:
+        aliases:
+          - r_prometheus
+
+  node-exporter:
+    image: prom/node-exporter:v0.15.2
+    user: root
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+    networks:
+      back_net:
+        aliases:
+          - r_node-exporter
+
+  mongodb-exporter:
+    image: mongodb-exporter:master
+    networks:
+      back_net:
+        aliases:
+          - r_mongodb-exporter
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.14.0
+    cap_add:
+      - CAP_NET_RAW
+    ports:
+      - '9115:9115'
+    networks:
+      back_net:
+        aliases:
+          - r_blackbox-exporter
+
+volumes:
+  post_db:
+  prometheus_data:
+  blackbox_data:
+
+networks:
+  front_net:
+  back_net:
