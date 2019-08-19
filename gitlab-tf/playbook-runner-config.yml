@@ -1,0 +1,24 @@
+---
+- name: Configuring Runner for autoscaling
+  hosts: runner
+  become: true
+  gather_facts: true
+
+  tasks:
+  
+  - name: Replace config file
+    template:
+      src: etc_gitlab-runner_config.toml.j2
+      dest: /etc/gitlab-runner/config.toml
+      mode: 0644
+      force: yes
+
+  - name: Gitlab-runner restart
+    shell: gitlab-runner restart && gitlab-runner verify
+
+  - name: Copy file
+    copy:
+      src: gc.json
+      dest: /etc/gitlab-runner/gc.json
+
+

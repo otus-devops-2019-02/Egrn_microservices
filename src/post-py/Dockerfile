@@ -10,7 +10,7 @@ RUN apk update -qq \
 && pip install -r /app/requirements.txt \
 && rm -rf /var/cache/apk/*
 
-ENV POST_DATABASE_HOST post_db
+ENV POST_DATABASE_HOST r_db
 ENV POST_DATABASE posts
 
 ENTRYPOINT ["python3", "post_app.py"]

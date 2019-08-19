@@ -1,5 +1,69 @@
 [![Build Status](https://travis-ci.com/otus-devops-2019-02/Egrn_microservices.svg?branch=master)](https://travis-ci.com/otus-devops-2019-02/Egrn_microservices)
 # Egrn_microservices
+## HW20: monitoring-1
+
+#### Задачи
+Упражнения с prometheus
+#### Решение
+https://hub.docker.com/u/egrn
+
+#### Задача *
+Добавьте в Prometheus мониторинг MongoDB с использованием необходимого экспортера
+#### Решение *
+```
+cd ./monitoring
+
+git clone https://github.com/percona/mongodb_exporter
+
+sed -E 's#.*ENTRYPOINT.*#ENTRYPOINT [ "/bin/mongodb_exporter","--collect.database", "--collect.collection", "--collect.topmetrics", "--collect.indexusage" ]\nENV MONGODB_URI mongodb://r_db:27017#g' -i ./mongodb_exporter/Dockerfile
+
+echo -e "\
+  - job_name: 'mongo'
+    static_configs:
+      - targets:
+        - 'mongodb-exporter:9216'
+" >> prometheus/prometheus.yml
+
+cd ./mongodb_exporter
+
+make docker
+```
+Дополнение в ./docker/docker-compose.yml
+
+#### Задача **
+Добавьте в Prometheus мониторинг сервисов comment, post, ui с помощью https://github.com/prometheus/blackbox_exporter
+#### Решение **
+```
+cd ./monitoring
+
+echo -e "\
+  - job_name: 'blackbox'
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+        - 'localhost:9090'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115  # The blackbox exporter's real hostname:port.
+" >> prometheus/prometheus.yml
+```
+Дополнение в ./docker/docker-compose.yml
+
+#### Задача **
+Напишите Makefile, который в минимальном варианте умеет
+- Билдить любой или все образы, которые сейчас используются
+- Умеет пушить их в докер хаб
+#### Решение **
+```
+./monitoring/make
+```
+https://hub.docker.com/u/egrn
+
 ___
 ___
 ## HW19: gitlab-ci-1

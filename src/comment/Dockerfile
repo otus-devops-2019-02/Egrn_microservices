@@ -9,7 +9,7 @@ RUN apk update -qq \
 && bundle install \
 && rm -rf /var/cache/apk/*
 
-ENV COMMENT_DATABASE_HOST comment_db
+ENV COMMENT_DATABASE_HOST r_db
 ENV COMMENT_DATABASE comments
 
 CMD ["puma"]

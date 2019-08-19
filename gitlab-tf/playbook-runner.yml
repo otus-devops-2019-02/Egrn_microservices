@@ -1,0 +1,86 @@
+---
+- name: Installing Gitlab Runner main host
+  hosts: runner
+  become: true
+  gather_facts: true
+
+  tasks:
+  - name: Check python for Ansible
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    changed_when: False
+
+  - name: Add docker GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+
+  - name: Install basic packages
+    apt:
+      name: ['apt-transport-https','ca-certificates','curl','gnupg2','software-properties-common','python-pip']
+      state: present
+      update_cache: yes
+
+  - name: Add docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+
+  - name: Install Docker packages
+    apt:
+      name: ['docker-ce','docker-ce-cli','containerd.io']
+      state: present
+
+  - name: Install Docker-compose
+    get_url:
+      url: https://github.com/docker/compose/releases/download/1.24.0/docker-compose-Linux-x86_64
+      dest: /usr/local/bin/docker-compose
+      mode: '0555'
+
+  - name: Install docker-py
+    pip:
+      name: docker-py
+
+  - name: Install docker-machine
+    get_url:
+      url: https://github.com/docker/machine/releases/download/v0.16.0/docker-machine-Linux-x86_64
+      dest: /usr/local/bin/docker-machine
+      mode: '0555'
+
+  - name: Enable Docker engine
+    systemd:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Install Runner repository key
+    apt_key:
+      url: https://packages.gitlab.com/runner/gitlab-runner/gpgkey
+
+  - name: Install Runner repository
+    apt_repository:
+      repo: deb https://packages.gitlab.com/runner/gitlab-runner/ubuntu xenial main
+
+  - name: Install Runner
+    apt:
+      name: gitlab-runner
+      update_cache: yes
+
+  - name: Enable Runner
+    systemd:
+      name: gitlab-runner
+      state: started
+      enabled: yes
+
+  - name: Install Google Cloud SDK repository key
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+  - name: Install Google Cloud SDK repository
+    apt_repository:
+      repo: deb http://packages.cloud.google.com/apt cloud-sdk-xenial main
+
+  - name: Install Google Cloud SDK
+    apt:
+      name: google-cloud-sdk
+      update_cache: yes
+
+  - name: Regster Runner for "{{ lookup('env','gitlab_ci_ip') }}"
+    shell: gitlab-runner register --non-interactive --url http://"{{ lookup('env','gitlab_ci_ip') }}"/ --registration-token "{{ lookup('env','gitlab_registration_token') }}" --executor "docker+machine" --docker-image "alpine:latest" --description "autoscaling-runners" --tag-list "docker,linux,ubuntu,xenial" --run-untagged="true" --locked="false"
