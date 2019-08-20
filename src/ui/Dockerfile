@@ -9,9 +9,9 @@ RUN apk update -qq \
 && bundle install \
 && rm -rf /var/cache/apk/*
 
-ENV POST_SERVICE_HOST post
+ENV POST_SERVICE_HOST r_post
 ENV POST_SERVICE_PORT 5000
-ENV COMMENT_SERVICE_HOST comment
+ENV COMMENT_SERVICE_HOST r_comment
 ENV COMMENT_SERVICE_PORT 9292
 
 CMD ["puma"]

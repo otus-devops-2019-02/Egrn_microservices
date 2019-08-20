@@ -1,0 +1,53 @@
+---
+- name: Installing GitLab Omnibus
+  hosts: service
+  become: true
+  gather_facts: true
+
+  tasks:
+  - name: Check python for Ansible
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    changed_when: False
+
+  - name: Add docker GPG key
+    apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+
+  - name: Install basic packages
+    apt:
+      name: ['apt-transport-https','ca-certificates','curl','gnupg2','software-properties-common','python-pip']
+      state: present
+      update_cache: yes
+
+  - name: Add docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+
+  - name: Install Docker packages
+    apt:
+      name: ['docker-ce','docker-ce-cli','containerd.io']
+      state: present
+
+  - name: Install Docker-compose 
+    shell: curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+  - name: Make docker-compose executable
+    file:
+      path: /usr/local/bin/docker-compose
+      mode: "u=rwx,g=rx,o=rx"
+
+  - name: Install docker-py
+    pip:
+      name: docker-py
+
+  - name: Set Gitlab environment
+    shell: mkdir -p /srv/gitlab/config /srv/gitlab/data /srv/gitlab/logs
+
+  - name: Copy compose file for Gitlab docker installation 
+    copy:
+      src: docker-compose.yml
+      dest: /srv/gitlab/docker-compose.yml
+
+  - name: Start compose for Gitlab
+    shell: docker-compose up -d
+    args:
+      chdir: /srv/gitlab/

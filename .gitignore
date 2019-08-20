@@ -33,3 +33,5 @@ vault.key
 .cache
 .pytest_cache
 scripts
+gc.json
+.env
