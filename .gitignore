@@ -35,3 +35,5 @@ vault.key
 scripts
 gc.json
 .env
+inventory.json
+logs/

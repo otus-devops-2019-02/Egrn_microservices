@@ -1,0 +1,61 @@
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md
+
+---
+- name: Bootstrapping etcd for controllers
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    user: appuser
+
+  tasks:
+
+  - name: Download and unarchive etcd
+    unarchive:
+      remote_src: yes
+      mode: 0755
+      src: https://github.com/coreos/etcd/releases/download/v3.3.9/etcd-v3.3.9-linux-amd64.tar.gz
+      dest: /usr/local/bin
+      extra_opts: [--strip-components=1]
+
+  - name: Create a directories for etcd 
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+    with_items: [ '/etc/etcd' , '/var/lib/etcd' ]
+
+  - name: Copy keys to /etc/etcd
+    copy:
+      src: labs/{{ item }}
+      dest: /etc/etcd/
+    with_items: [ 'ca.pem','kubernetes-key.pem','kubernetes.pem' ]
+
+  - name: Copy daemon file from template
+    template:
+      src: templates/etcd.service.sh.j2
+      dest: /home/{{ user }}/etcd.service.sh
+      mode: 0755
+
+  - name: Make etcd.service
+    shell: |
+      /home/{{ user }}/etcd.service.sh
+
+  - name: Daemon reload
+    systemd:
+      daemon_reload: yes
+
+  - name: Enable service and start etcd
+    systemd:
+      name: etcd
+      enabled: yes
+      state: started
+
+  - name: Raw result of running verification command
+    shell: ETCDCTL_API=3 etcdctl member list --endpoints=https://127.0.0.1:2379 --cacert=/etc/etcd/ca.pem --cert=/etc/etcd/kubernetes.pem --key=/etc/etcd/kubernetes-key.pem
+    register: output_result
+    
+  - name: Save output_result to local file
+    local_action: copy content={{ output_result }} dest=logs/etcd-verification-{{ inventory_hostname }}
