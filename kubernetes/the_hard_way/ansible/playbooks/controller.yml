@@ -1,0 +1,5 @@
+---
+- import_playbook: playbook-etcd.yml
+- import_playbook: playbook-control.yml
+- import_playbook: playbook-healthcheck.yml
+

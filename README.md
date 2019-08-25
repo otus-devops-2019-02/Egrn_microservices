@@ -1,5 +1,42 @@
 [![Build Status](https://travis-ci.com/otus-devops-2019-02/Egrn_microservices.svg?branch=master)](https://travis-ci.com/otus-devops-2019-02/Egrn_microservices)
 # Egrn_microservices
+
+## HW25: kubernetes-1
+
+#### Задачи
+- Опишем приложение в контексте Kubernetes с помощью manifest-ов в YAML-формате
+- Пройти https://github.com/kelseyhightower/kubernetes-the-hard-way
+
+#### Решение
+```
+kubectl get pods -o wide
+```
+NAME                                  READY   STATUS    RESTARTS   AGE     IP           NODE       NOMINATED NODE
+busybox-bd8fb7cbd-vfjw7               1/1     Running   0          38m     10.200.2.2   worker-2   <none>
+comment-deployment-58956cb4c9-wlsjb   1/1     Running   0          5m17s   10.200.1.3   worker-1   <none>
+mongo-deployment-666c78df77-s7w79     1/1     Running   0          4m52s   10.200.2.4   worker-2   <none>
+nginx-dbddb74b8-zd72w                 1/1     Running   0          27m     10.200.2.3   worker-2   <none>
+post-deployment-55df476b77-vkn2p      1/1     Running   0          5m9s    10.200.0.4   worker-0   <none>
+ui-deployment-584b7bf84f-sx92b        1/1     Running   0          5m3s    10.200.1.4   worker-1   <none>
+untrusted                             1/1     Running   0          19m     10.200.0.3   worker-0   <none>
+
+#### Задача *
+Описать установку компонентов Kubernetes из THW в виде Ansible-плейбуков
+
+#### Решение *
+```
+cd kubernetes/the_hard_way/ansible
+
+ansible-playbook playbooks/controller.yml -i make-inventory.sh -l controller
+
+ansible-playbook playbooks/worker.yml -i make-inventory.sh -l worker
+```
+
+
+## HW23: monitoring-3
+
+## HW21: monitoring-2
+
 ## HW20: monitoring-1
 
 #### Задачи

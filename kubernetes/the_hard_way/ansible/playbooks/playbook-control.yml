@@ -1,0 +1,92 @@
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md
+
+---
+- name: Bootstrapping k8s Control Plan
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    user: appuser
+    k8s_url: https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/linux/amd64/
+
+  tasks:
+
+  - name: Create a directories for k8s
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+    with_items: [ '/etc/kubernetes/config','/var/lib/kubernetes/']
+
+  - name: Copy keys and configs to /var/lib/kubernetes/
+    copy:
+      src: labs/{{ item }}
+      dest: /var/lib/kubernetes/
+    with_items:
+      - ca.pem
+      - ca-key.pem
+      - kubernetes-key.pem
+      - kubernetes.pem
+      - service-account-key.pem
+      - service-account.pem
+      - encryption-config.yaml
+      - kube-controller-manager.kubeconfig
+      - kube-scheduler.kubeconfig
+      - admin.kubeconfig
+
+  - name: Download and install official Kubernetes release binaries
+    get_url:
+      url: "{{k8s_url}}{{item}}"
+      dest: /usr/local/bin/
+      mode: 0550
+    with_items:
+      - kube-apiserver
+      - kube-controller-manager
+      - kube-scheduler
+      - kubectl
+      
+  - name: Copy template scripts
+    template:
+      src: templates/{{ item }}
+      dest: /home/{{ user }}/{{ item | replace('.j2','') }}
+      mode: 0755     
+    with_items:
+      - kube-apiserver.service.sh.j2
+      - kube-controller-manager.service.sh.j2
+      - kube-scheduler.sh.j2
+      - kube-apiserver-to-kubelet.sh.j2
+
+  - name: Make services and configs
+    shell: /home/{{ user }}/{{ item }}
+    with_items:
+      - kube-apiserver.service.sh
+      - kube-controller-manager.service.sh
+      - kube-scheduler.sh
+
+  - name: Daemon reload
+    systemd:
+      daemon_reload: yes
+
+  - name: Enable services and start it
+    systemd:
+      name: "{{ item }}"
+      enabled: yes
+      state: started
+    with_items:
+      - kube-apiserver
+      - kube-controller-manager
+      - kube-scheduler
+
+  - name: Make services and configs
+    shell: /home/{{ user }}/{{ item }}
+    with_items:
+      - kube-apiserver-to-kubelet.sh
+
+  - name: Raw result of running verification command for Control Plan
+    shell: kubectl get componentstatuses --kubeconfig /var/lib/kubernetes/admin.kubeconfig
+    register: output_result
+
+  - name: Save output_result to local file
+    local_action: copy content={{ output_result }} dest=logs/ControlPlane-verification-{{ inventory_hostname }}

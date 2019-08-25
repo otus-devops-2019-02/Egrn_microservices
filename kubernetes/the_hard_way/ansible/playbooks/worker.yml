@@ -1,0 +1,94 @@
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/09-bootstrapping-kubernetes-workers.md
+
+---
+- name: Bootstrapping Worker Node
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    user: appuser
+
+  tasks:
+
+  - name: Install OS dependences
+    apt:
+      name: ['socat', 'conntrack', 'ipset']
+      state: present
+      update_cache: yes
+
+  - name: Create a directories for Worker tools
+    file: path="{{ item }}" state=directory owner=root group=root mode=0755
+    with_items:
+      - /etc/cni/net.d
+      - /opt/cni/bin
+      - /var/lib/kubelet
+      - /var/lib/kube-proxy
+      - /var/lib/kubernetes
+      - /var/run/kubernetes
+      - /etc/containerd
+
+  - name: Download and install Kubernetes release Worker Binaries
+    get_url: url={{ item.url }} dest={{ item.dest }} mode=0755
+    with_items:
+      - {url: 'https://storage.googleapis.com/kubernetes-the-hard-way/runsc-50c283b9f56bb7200938d9e207355f05f79f0d17', dest: '/usr/local/bin/runsc'}
+      - {url: 'https://github.com/opencontainers/runc/releases/download/v1.0.0-rc5/runc.amd64', dest: '/usr/local/bin/runc'}
+      - {url: 'https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/linux/amd64/kubectl', dest: '/usr/local/bin/'}
+      - {url: 'https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/linux/amd64/kube-proxy', dest: '/usr/local/bin/'}
+      - {url: 'https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/linux/amd64/kubelet', dest: '/usr/local/bin/'}
+
+  - name: Download unarchive and install Worker Binaries
+    unarchive: remote_src=yes mode=0755 src={{ item.src }} dest={{ item.dest }} extra_opts={{ item.opts }}  #[--strip-components=1]
+    with_items:
+      - {src: 'https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.12.0/crictl-v1.12.0-linux-amd64.tar.gz', dest: '/usr/local/bin/', opts: ''}
+      - {src: 'https://github.com/containernetworking/plugins/releases/download/v0.6.0/cni-plugins-amd64-v0.6.0.tgz', dest: '/opt/cni/bin/', opts: ''}
+      - {src: 'https://github.com/containerd/containerd/releases/download/v1.2.0-rc.0/containerd-1.2.0-rc.0.linux-amd64.tar.gz', dest: '/', opts: ''}
+
+  - name: Get hostname
+    shell: hostname
+    register: instance_hostname
+
+  - name: Copy keys and configs to /var/lib/...
+    copy: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - {src: 'labs/{{ instance_hostname.stdout }}-key.pem', dest: '/var/lib/kubelet/'}
+      - {src: 'labs/{{ instance_hostname.stdout }}.pem', dest: '/var/lib/kubelet/'}
+      - {src: 'labs/{{ instance_hostname.stdout }}.kubeconfig', dest: '/var/lib/kubelet/kubeconfig'}
+      - {src: 'labs/ca.pem', dest: '/var/lib/kubernetes/'}
+      - {src: 'labs/kube-proxy.kubeconfig', dest: '/var/lib/kube-proxy/kubeconfig'}
+
+  - name: Copy template scripts
+    template:
+      src: templates/{{ item }}
+      dest: /home/{{ user }}/{{ item | replace('.j2','') }}
+      mode: 0755
+    with_items:
+      - network-conf.sh.j2
+      - containerd.sh.j2
+      - kubelet.sh.j2
+      - kube-proxy.sh.j2
+
+  - name: Make services and configs
+    shell: /home/{{ user }}/{{ item }}
+    with_items:
+      - network-conf.sh
+      - containerd.sh
+      - kubelet.sh
+      - kube-proxy.sh
+
+  - name: Daemon reload
+    systemd:
+      daemon_reload: yes
+
+  - name: Enable services and start it
+    systemd:
+      name: "{{ item }}"
+      enabled: yes
+      state: started
+    with_items:
+      - containerd
+      - kubelet
+      - kube-proxy
+
+
+
+
